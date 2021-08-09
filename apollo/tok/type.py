@@ -10,8 +10,6 @@ class TokenType(Enum):
     RBRACK = auto()
     LBRACE = auto()
     RBRACE = auto()
-    LCHEV = auto()
-    RCHEV = auto()
 
     DOT = auto()
     COMMA = auto()
@@ -30,9 +28,9 @@ class TokenType(Enum):
     # Comparison
     EQUAL = auto()
     NEQUAL = auto()
-    LESSER = LCHEV
+    LESSER = auto()
     LEQUAL = auto()
-    GREATER = RCHEV
+    GREATER = auto()
     GEQUAL = auto()
 
     BSLASH = auto()
@@ -76,5 +74,6 @@ class TokenType(Enum):
     STRING = auto()
     NUMBER = auto()
 
-    # End of file
+    # Space and misc
+    EOL = auto()
     EOF = auto()
