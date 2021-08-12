@@ -3,8 +3,11 @@
 
 import argparse
 import sys
+from exc import ParseException
+from parser import Parser
 
 from scanner import Scanner
+from tok import TokenType as tt
 
 
 class Interpreter:
@@ -57,7 +60,21 @@ class Interpreter:
 
         tokens = scanner.scan_tokens()
 
-        print(tokens)
+        parser = Parser(tokens)
+
+        match parser.parse():
+            case ParseException(msg, token) as e:
+                self.report(token, msg)
+                raise e
+            case expr:
+                import pprint
+                pprint.pprint(expr)
+
+    def report(self, token, msg):
+        match token.type:
+            case tt.EOF: print(f"[line {token.line}] Error at end: {msg}")
+            case _: print(f"[line {token.line}] Error at {token.lexeme}: {msg}")
+        self.error = True
 
 
 if __name__ == "__main__":
