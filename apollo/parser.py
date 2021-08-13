@@ -75,6 +75,8 @@ class Parser:
             return Literal(False)
         elif self.match(tt.TRUE):
             return Literal(True)
+        elif self.match(tt.NONE):
+            return Literal(None)
         elif self.match(tt.NUMBER, tt.STRING):
             return Literal(self.previous.literal)
         elif self.match(tt.LPAREN):

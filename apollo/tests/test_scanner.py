@@ -68,6 +68,7 @@ def test_keywords():
         Token(tt.ELSE, 1, 'else'),
         Token(tt.TRUE, 1, 'True'),
         Token(tt.FALSE, 1, 'False'),
+        Token(tt.NONE, 1, 'None'),
         Token(tt.OR, 1, 'or'),
         Token(tt.AND, 1, 'and'),
         Token(tt.NOT, 1, 'not'),
@@ -79,11 +80,13 @@ def test_keywords():
         Token(tt.FOR, 1, 'for'),
         Token(tt.WHILE, 1, 'while'),
         Token(tt.DO, 1, 'do'),
+
         Token(tt.EOF, 1)
+
     ]
 
     scanner = Scanner(
-        "if elif else True False or and not class self return def import for while do"
+        "if elif else True False None or and not class self return def import for while do"
     )
 
     tokens = scanner.scan_tokens()

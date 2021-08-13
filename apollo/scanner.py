@@ -13,6 +13,7 @@ KEYWORDS = {
     "else": tt.ELSE,
     "True": tt.TRUE,
     "False": tt.FALSE,
+    "None": tt.NONE,
 
     "do": tt.DO,
     "for": tt.FOR,

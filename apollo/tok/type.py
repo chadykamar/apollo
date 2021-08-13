@@ -67,8 +67,7 @@ class TokenType(Enum):
     ELSE = auto()
     TRUE = auto()
     FALSE = auto()
-
-    HASH = auto()
+    NONE = auto()
 
     IDENTIFIER = auto()
     STRING = auto()
