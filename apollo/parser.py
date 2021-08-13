@@ -2,7 +2,7 @@
 import pysnooper
 
 from exc import ParseException
-from expression import Binary, Expression, Grouping, Literal, Unary
+from expression import Binary, Expression, Grouping, Literal, Ternary, Unary
 from tok import TokenType as tt
 from tok.tok import Token
 from tok.type import TokenType
@@ -18,10 +18,24 @@ class Parser:
         try:
             return self.expression()
         except ParseException as e:
-            return e
+            raise e
 
     def expression(self) -> Expression:
-        return self.equality()
+        return self.left_assoc(self.ternary, tt.COMMA)
+
+    def ternary(self) -> Expression:
+        expr = self.equality()
+
+        if self.match(tt.IF):
+            if_ = self.previous
+            condition = self.equality()
+
+            if self.match(tt.ELSE):
+                else_ = self.previous
+                right = self.equality()
+                expr = Ternary(expr, if_, condition, else_, right)
+
+        return expr
 
     def left_assoc(self, higher_precedence, *types):
         expr = higher_precedence()

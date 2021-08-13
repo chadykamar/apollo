@@ -62,13 +62,13 @@ class Interpreter:
 
         parser = Parser(tokens)
 
-        match parser.parse():
-            case ParseException(msg, token) as e:
-                self.report(token, msg)
-                raise e
-            case expr:
-                import pprint
-                pprint.pprint(expr)
+        try:
+            expr = parser.parse()
+            import pprint
+            pprint.pprint(expr)
+        except ParseException as e:
+            self.report(e.token, str(e))
+            raise e
 
     def report(self, token, msg):
         match token.type:
