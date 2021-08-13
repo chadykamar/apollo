@@ -91,4 +91,11 @@ def test_grouping_missing_closing():
         parser.parse()
 
 
-def test_
+def test_incomplete():
+    tokens = [Token(tt.NUMBER, 1, '1', 1),
+              Token(tt.PLUS, 1, '+'),
+              Token(tt.EOF, 1)
+              ]
+    parser = Parser(tokens)
+    with pytest.raises(ParseException):
+        parser.parse()
