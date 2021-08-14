@@ -3,17 +3,18 @@
 
 import argparse
 import sys
-from exc import ParseException
 from parser import Parser
 
+from exc import ParseException, RuntimeException
+from interpreter import Interpreter
 from scanner import Scanner
 from tok import TokenType as tt
 
 
-class Interpreter:
+class Apollo:
 
     """
-    Main class of our interpreter
+    Front-facing class of the interpreter
 
     Attributes
     ----------
@@ -23,6 +24,8 @@ class Interpreter:
 
     def __init__(self) -> None:
         self.error = False
+        self.runtime_error = False
+        self.interpreter = Interpreter()
 
     def entrypoint(self):
 
@@ -42,7 +45,11 @@ class Interpreter:
         while True:
             line = input("apollo> ")
             if line:
-                self.run(line)
+
+                try:
+                    self.run(line)
+                except RuntimeException as e:
+                    self.report(e.token, str(e))
             else:
                 break
 
@@ -54,21 +61,23 @@ class Interpreter:
         except FileNotFoundError:
             print(f"file {filename} was not found", file=sys.stderr)
             sys.exit(2)
+        except RuntimeException as e:
+            self.report(e.token, str(e))
+            self.runtime_error = True
+            raise
 
     def run(self, code: str):
-        scanner = Scanner(code)
-
-        tokens = scanner.scan_tokens()
-
-        parser = Parser(tokens)
 
         try:
+            scanner = Scanner(code)
+            tokens = scanner.scan_tokens()
+            parser = Parser(tokens)
             expr = parser.parse()
+            result = self.interpreter.interpret(expr)
             import pprint
-            pprint.pprint(expr)
+            pprint.pprint(result)
         except ParseException as e:
             self.report(e.token, str(e))
-            raise e
 
     def report(self, token, msg):
         match token.type:
@@ -78,4 +87,4 @@ class Interpreter:
 
 
 if __name__ == "__main__":
-    Interpreter().entrypoint()
+    Apollo().entrypoint()
