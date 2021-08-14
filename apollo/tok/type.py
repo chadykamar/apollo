@@ -3,6 +3,8 @@ from enum import Enum, auto
 
 class TokenType(Enum):
 
+    NEWLINE = auto()
+
     # Grouping
     LPAREN = auto()
     RPAREN = auto()
