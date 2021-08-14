@@ -65,7 +65,9 @@ class Scanner:
                 while self.peek():
                     self.advance()
             case ' ' | '\r' | '\t': ...
-            case '\n': self.line += 1
+            case '\n':
+                self.add_token(tt.NEWLINE)
+                self.line += 1
             case '"' | "'" as quote: self.add_token(tt.STRING, self.string(quote))
             case c if c.isdecimal(): self.add_token(tt.NUMBER, self.number())
             case c if c.isalpha(): self.add_token(self.keyword_identifier())

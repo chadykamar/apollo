@@ -18,6 +18,8 @@ def test_scanner_hello_world():
 def test_symbols():
 
     expected = [
+        Token(tt.NEWLINE, 1, '\n'),
+
         Token(tt.LPAREN, 2, '('),
         Token(tt.LBRACE, 2, '{'),
         Token(tt.LBRACK, 2, '['),
@@ -26,6 +28,13 @@ def test_symbols():
         Token(tt.RBRACK, 2, ']'),
         Token(tt.RBRACE, 2, '}'),
         Token(tt.RPAREN, 2, ')'),
+
+        Token(tt.NEWLINE, 2, '\n'),
+        Token(tt.NEWLINE, 3, '\n'),
+        Token(tt.NEWLINE, 4, '\n'),
+        Token(tt.NEWLINE, 5, '\n'),
+
+
 
         Token(tt.PLUS, 6, '+'),
         Token(tt.MINUS, 6, '-'),
@@ -42,6 +51,8 @@ def test_symbols():
         Token(tt.EQUAL, 6, '=='),
         Token(tt.LEQUAL, 6, '<='),
         Token(tt.GEQUAL, 6, '>='),
+
+        Token(tt.NEWLINE, 6, '\n'),
 
         Token(tt.EOF, 7)]
 
