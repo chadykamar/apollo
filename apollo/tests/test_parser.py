@@ -1,10 +1,10 @@
 from parser import Parser
-from tok import Token, TokenType as tt
 
-from expression import Binary, Grouping, Literal, Ternary, Unary
 import pytest
-
 from exc import ParseException
+from expression import Binary, Grouping, Literal, Ternary, Unary
+from tok import Token
+from tok import TokenType as tt
 
 
 def test_ternary_if_else():

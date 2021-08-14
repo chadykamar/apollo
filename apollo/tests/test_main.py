@@ -1,6 +1,5 @@
-import subprocess
-
 import os
+import subprocess
 
 from tests import change_test_dir
 

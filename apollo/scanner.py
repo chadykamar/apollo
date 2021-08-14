@@ -1,6 +1,8 @@
 from tok import TokenType as tt
 from tok import Token
 from exc import UnexpectedCharacter, UnterminatedString
+from tok import Token
+from tok import TokenType as tt
 
 EOL = '\n'
 

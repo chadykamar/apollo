@@ -1,6 +1,5 @@
 
 import pysnooper
-
 from exc import ParseException
 from expression import Binary, Expression, Grouping, Literal, Ternary, Unary
 from tok import TokenType as tt

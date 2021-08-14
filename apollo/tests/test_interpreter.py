@@ -3,7 +3,8 @@ import pytest
 from exc import RuntimeException
 from expression import Binary, Grouping, Literal, Ternary, Unary
 from interpreter import Interpreter
-from tok import Token, TokenType as tt
+from tok import Token
+from tok import TokenType as tt
 
 
 @pytest.mark.parametrize(
