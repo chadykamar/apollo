@@ -1,7 +1,7 @@
 
-import pysnooper
 from exc import ParseException
 from expression import Binary, Expression, Grouping, Literal, Ternary, Unary
+from statement import ExpressionStatement, Statement
 from tok import TokenType as tt
 from tok.tok import Token
 from tok.type import TokenType
@@ -13,11 +13,21 @@ class Parser:
         self.tokens = tokens
         self.current = 0
 
-    def parse(self) -> Expression | None:
-        try:
-            return self.expression()
-        except ParseException as e:
-            raise e
+    def parse(self) -> list[Statement]:
+        statements = []
+
+        while not self.end:
+            statements.append(self.statement())
+
+        return statements
+
+    def statement(self):
+        return self.expr_stmt()
+
+    def expr_stmt(self):
+        expr = self.expression()
+        self.consume(tt.NEWLINE, "Expect newline after expression")
+        return ExpressionStatement(expr)
 
     def expression(self) -> Expression:
         return self.left_assoc(self.ternary, tt.COMMA)

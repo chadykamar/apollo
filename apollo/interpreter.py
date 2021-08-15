@@ -3,13 +3,22 @@ from token import NUMBER
 
 from exc import RuntimeException
 from expression import Binary, Expression, Grouping, Literal, Ternary, Unary
+from statement import ExpressionStatement, Statement
 from tok.type import TokenType as tt
 
 
 class Interpreter:
 
-    def interpret(self, expr: Expression):
-        return self.evaluate(expr)
+    def interpret(self, statements: list[Statement]):
+        results = []
+        for stmt in statements:
+            results.append(self.execute(stmt))
+        return results
+
+    def execute(self, statement: Statement):
+
+        match statement:
+            case ExpressionStatement() as stmt: return self.evaluate(stmt.expr)
 
     def evaluate(self, expr: Expression):
 
