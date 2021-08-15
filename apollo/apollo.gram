@@ -1,3 +1,6 @@
+file             : statement* EOF ;
+statement        : expr_stmt ;
+expr_stmt        : expr NEWLINE ;
 expression       : ternary ( "," ternary)* ;
 ternary          : equality "if" equality "else" equality ;
 equality         : comparison ( ( "!=" | "==" ) comparison )* ;
