@@ -5,6 +5,7 @@ from exc import ParseException
 from expression import Binary, Grouping, Literal, Ternary, Unary
 from tok import Token
 from tok import TokenType as tt
+from statement import ExpressionStatement
 
 
 def test_ternary_if_else():
@@ -19,15 +20,15 @@ def test_ternary_if_else():
               Token(tt.EOF, 1)
               ]
 
-    expected = Ternary(left=Literal(value=1),
-                       if_=Token(type=tt.IF, line=1,
-                                 lexeme='if', literal=None),
-                       condition=Literal(value=True),
-                       else_=Token(type=tt.ELSE,
-                                   line=1,
-                                   lexeme='else',
-                                   literal=None),
-                       right=Literal(value=2))
+    expected = [ExpressionStatement(expr=Ternary(left=Literal(value=1),
+                                                 if_=Token(type=tt.IF, line=1,
+                                                           lexeme='if', literal=None),
+                                                 condition=Literal(value=True),
+                                                 else_=Token(type=tt.ELSE,
+                                                             line=1,
+                                                             lexeme='else',
+                                                             literal=None),
+                                                 right=Literal(value=2)))]
 
     parser = Parser(tokens)
     assert parser.parse() == expected
@@ -41,9 +42,9 @@ def test_comma_expression():
               Token(tt.NUMBER, 1, '3', 3),
               Token(tt.EOF, 1)
               ]
-    expected = Binary(Binary(Literal(1), Token(tt.COMMA, 1, ','), Literal(True)),
-                      Token(tt.COMMA, 1, ','),
-                      Literal(3))
+    expected = [ExpressionStatement(Binary(Binary(Literal(1), Token(tt.COMMA, 1, ','), Literal(True)),
+                                           Token(tt.COMMA, 1, ','),
+                                           Literal(3)))]
     parser = Parser(tokens)
     assert parser.parse() == expected
 
@@ -53,7 +54,8 @@ def test_unary():
               Token(tt.NUMBER, 1, '1', 1),
               Token(tt.EOF, 1)
               ]
-    expected = Unary(Token(tt.MINUS, line=1, lexeme='-'), Literal(1))
+    expected = [ExpressionStatement(
+        Unary(Token(tt.MINUS, line=1, lexeme='-'), Literal(1)))]
     parser = Parser(tokens)
     assert parser.parse() == expected
 
@@ -64,8 +66,8 @@ def test_comparison():
               Token(tt.FALSE, 1, 'False', False),
               Token(tt.EOF, 1)
               ]
-    expected = Binary(Literal(True), Token(
-        tt.EQUAL, line=1, lexeme='=='), Literal(False))
+    expected = [ExpressionStatement(Binary(Literal(True), Token(
+        tt.EQUAL, line=1, lexeme='=='), Literal(False)))]
     parser = Parser(tokens)
     assert parser.parse() == expected
 
@@ -76,7 +78,7 @@ def test_grouping_correct():
               Token(tt.RPAREN, 1, ')'),
               Token(tt.EOF, 1)
               ]
-    expected = Grouping(Literal("hello"))
+    expected = [ExpressionStatement(Grouping(Literal("hello")))]
     parser = Parser(tokens)
     assert parser.parse() == expected
 
