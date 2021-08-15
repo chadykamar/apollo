@@ -26,7 +26,8 @@ class Parser:
 
     def expr_stmt(self):
         expr = self.expression()
-        self.consume(tt.NEWLINE, "Expect newline after expression")
+        if not self.end:
+            self.consume(tt.NEWLINE, "Syntax error")
         return ExpressionStatement(expr)
 
     def expression(self) -> Expression:
@@ -141,6 +142,6 @@ class Parser:
     def peek(self):
         return self.tokens[self.current]
 
-    @property
+    @ property
     def previous(self):
         return self.tokens[self.current - 1]
