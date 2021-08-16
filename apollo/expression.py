@@ -44,3 +44,8 @@ class Grouping(Expression):
 @dataclass
 class Literal(Expression):
     value: Any
+
+
+@dataclass
+class Variable(Expression):
+    name: Token
