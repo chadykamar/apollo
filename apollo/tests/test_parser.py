@@ -2,10 +2,10 @@ from parser import Parser
 
 import pytest
 from exc import ParseException
-from expression import Binary, Grouping, Literal, Ternary, Unary
+from expression import Binary, Grouping, Literal, Ternary, Unary, Variable
 from tok import Token
 from tok import TokenType as tt
-from statement import ExpressionStatement
+from statement import AssignmentStatement, ExpressionStatement
 
 
 def test_ternary_if_else():
@@ -101,3 +101,77 @@ def test_incomplete():
     parser = Parser(tokens)
     with pytest.raises(ParseException):
         parser.parse()
+
+
+def test_invalid():
+    tokens = [Token(tt.NUMBER, 1, '1', 1),
+              Token(tt.PLUS, 1, '+'),
+              Token(tt.PLUS, 1, '+'),
+              Token(tt.NUMBER, 1, '+'),
+              Token(tt.NEWLINE, 1, '\n'),
+              Token(tt.EOF, 1)
+              ]
+    parser = Parser(tokens)
+    with pytest.raises(ParseException):
+        parser.parse()
+
+
+def test_expr_statement():
+    tokens = [Token(tt.NUMBER, 1, '1', 1),
+              Token(tt.PLUS, 1, '+'),
+              Token(tt.NUMBER, 1, '1', 1),
+              Token(tt.NEWLINE, 1, '\n'),
+
+              Token(tt.NUMBER, 2, '2', 2),
+              Token(tt.EOF, 2)]
+
+    parser = Parser(tokens)
+
+    expected = [ExpressionStatement(
+        Binary(Literal(1), Token(tt.PLUS, 1, '+'), Literal(1))),
+
+        ExpressionStatement(Literal(2))]
+
+    assert parser.parse() == expected
+
+
+def test_assignment():
+    tokens = [Token(tt.IDENTIFIER, 1, 'a'),
+              Token(tt.ASSIGN, 1, '='),
+              Token(tt.NUMBER, 1, '1', 1),
+              Token(tt.NEWLINE, 1, '\n'),
+              Token(tt.EOF, 2)]
+
+    parser = Parser(tokens)
+
+    expected = [AssignmentStatement(name=Token(
+        tt.IDENTIFIER, 1, 'a'), expr=Literal(1))]
+
+    assert parser.parse() == expected
+
+
+def test_none():
+    tokens = [Token(tt.NONE, 1, 'None'),
+              Token(tt.NEWLINE, 1, '\n'),
+
+              Token(tt.EOF, 2)]
+
+    parser = Parser(tokens)
+
+    expected = [ExpressionStatement(expr=Literal(None))]
+
+    assert parser.parse() == expected
+
+
+def test_identifier():
+    tokens = [Token(tt.IDENTIFIER, 1, 'a'),
+              Token(tt.NEWLINE, 1, '\n'),
+
+              Token(tt.EOF, 2)]
+
+    parser = Parser(tokens)
+
+    expected = [ExpressionStatement(
+        expr=Variable(Token(tt.IDENTIFIER, 1, 'a')))]
+
+    assert parser.parse() == expected
