@@ -1,5 +1,7 @@
 file             : statement* EOF ;
-statement        : expr_stmt ;
+statement        : expr_stmt
+                 | assignment ;
+assignment       : IDENTIFIER ( "=" expression) NEWLINE ;
 expr_stmt        : expr NEWLINE ;
 expression       : ternary ( "," ternary)* ;
 ternary          : equality "if" equality "else" equality ;
@@ -10,5 +12,6 @@ factor           : unary ( ( "/" | "*" ) unary )* ;
 unary            : ( "not" | "-" ) unary
                  | primary ;
 
-atom             : NUMBER | STRING | "true" | "false" | "nil"
-                 | "(" expression ")" ;
+primary          : NUMBER | STRING | "true" | "false" | "nil"
+                 | "(" expression ")"
+                 | IDENTIFIER ;
