@@ -1,9 +1,9 @@
 
 import pytest
-from exc import RuntimeException
-from expression import Binary, Grouping, Literal, Ternary, Unary
+from exc import NameNotFoundException, RuntimeException
+from expression import Binary, Grouping, Literal, Ternary, Unary, Variable
 from interpreter import Interpreter
-from statement import ExpressionStatement
+from statement import AssignmentStatement, ExpressionStatement
 from tok import Token
 from tok import TokenType as tt
 
@@ -117,3 +117,39 @@ def test_div_zero():
     with pytest.raises(RuntimeException) as e:
         interpreter.interpret([expr])
         assert "ZeroDivisionError" in e
+
+
+def test_assignment():
+
+    interpreter = Interpreter()
+
+    statements = [AssignmentStatement(
+        Token(tt.IDENTIFIER, 1, 'a'), Literal(1))]
+
+    interpreter.interpret(statements)
+
+    assert interpreter.env['a'] == 1
+
+
+def test_variable():
+
+    interpreter = Interpreter()
+
+    interpreter.env['b'] = 1
+
+    statements = [ExpressionStatement(Variable(Token(tt.IDENTIFIER, 2, 'b')))]
+
+    assert interpreter.interpret(statements) == [1]
+
+
+def test_name_not_found():
+
+    interpreter = Interpreter()
+
+    statements = [
+        ExpressionStatement(Variable(Token(tt.IDENTIFIER, 1, 'b')))]
+
+    with pytest.raises(NameNotFoundException):
+        interpreter.interpret(statements)
+
+    # assert interpreter.env['b'] == 1
