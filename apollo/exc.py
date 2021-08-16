@@ -21,3 +21,7 @@ class ParseException(ApolloException):
 
 class RuntimeException(ApolloException):
     pass
+
+
+class NameNotFoundException(Exception):
+    pass
