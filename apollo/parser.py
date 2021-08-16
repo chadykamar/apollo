@@ -1,7 +1,7 @@
 
 from exc import ParseException
-from expression import Binary, Expression, Grouping, Literal, Ternary, Unary
-from statement import ExpressionStatement, Statement
+from expression import Binary, Expression, Grouping, Literal, Ternary, Unary, Variable
+from statement import AssignmentStatement, ExpressionStatement, Statement
 from tok import TokenType as tt
 from tok.tok import Token
 from tok.type import TokenType
@@ -17,12 +17,31 @@ class Parser:
         statements = []
 
         while not self.end:
-            statements.append(self.statement())
+            try:
+                statements.append(self.statement())
+            except ParseException:
+                statements.append(None)
+                self.sync()
+                raise
 
         return statements
 
     def statement(self):
+
+        if self.check(tt.IDENTIFIER) and self.check(tt.ASSIGN, lookahead=True):
+            return self.assignment()
+
         return self.expr_stmt()
+
+    def assignment(self):
+        name = self.consume(tt.IDENTIFIER, "expect var name")
+
+        if self.match(tt.ASSIGN):
+            expr = self.expression()
+
+        if not self.end:
+            self.consume(tt.NEWLINE, "Expect newline after assignment")
+        return AssignmentStatement(name, expr)
 
     def expr_stmt(self):
         expr = self.expression()
@@ -93,6 +112,8 @@ class Parser:
             expr = self.expression()
             self.consume(tt.RPAREN, "Expect ')' after expression.")
             return Grouping(expr)
+        elif self.match(tt.IDENTIFIER):
+            return Variable(self.previous)
 
         raise ParseException("Expression expected.", self.peek())
 
@@ -110,7 +131,7 @@ class Parser:
         self.advance()
 
         while not self.end:
-            if self.previous.type == tt.SCOLON:
+            if self.previous.type == tt.NEWLINE:
                 return
 
             if self.match(tt.CLASS, tt.DEF, tt.FOR, tt.IF, tt.WHILE, tt.RETURN):
@@ -124,10 +145,12 @@ class Parser:
 
         raise ParseException(msg, self.peek())
 
-    def check(self, type):
+    def check(self, type, lookahead=False):
         if self.end:
             return False
 
+        if lookahead:
+            return self.lookahead().type == type
         return self.peek().type == type
 
     def advance(self):
@@ -141,6 +164,9 @@ class Parser:
 
     def peek(self):
         return self.tokens[self.current]
+
+    def lookahead(self):
+        return self.tokens[self.current + 1]
 
     @ property
     def previous(self):
