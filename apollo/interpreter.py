@@ -1,24 +1,36 @@
 
 from token import NUMBER
 
-from exc import RuntimeException
-from expression import Binary, Expression, Grouping, Literal, Ternary, Unary
-from statement import ExpressionStatement, Statement
+from environment import Environment
+from exc import NameNotFoundException, RuntimeException
+from expression import Binary, Expression, Grouping, Literal, Ternary, Unary, Variable
+from statement import AssignmentStatement, ExpressionStatement, Statement
 from tok.type import TokenType as tt
 
 
 class Interpreter:
 
+    def __init__(self) -> None:
+        self.env = Environment()
+
     def interpret(self, statements: list[Statement]):
         results = []
         for stmt in statements:
-            results.append(self.execute(stmt))
+            try:
+                results.append(self.execute(stmt))
+            except NameNotFoundException as e:
+                results.append(None)
+                print(e)
+                raise
         return results
 
     def execute(self, statement: Statement):
 
         match statement:
             case ExpressionStatement() as stmt: return self.evaluate(stmt.expr)
+            case AssignmentStatement(name, expr):
+                self.env[name.lexeme] = self.evaluate(expr)
+                return self.env[name.lexeme]
 
     def evaluate(self, expr: Expression):
 
@@ -28,6 +40,7 @@ class Interpreter:
             case Literal() as expr: return self.literal(expr)
             case Grouping() as expr: return self.grouping(expr)
             case Ternary() as expr: return self.ternary(expr)
+            case Variable() as expr: return self.env[expr.name.lexeme]
 
     def literal(self, expr: Literal):
         return expr.value
