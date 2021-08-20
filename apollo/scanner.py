@@ -1,5 +1,3 @@
-from tok import TokenType as tt
-from tok import Token
 from exc import UnexpectedCharacter, UnterminatedString
 from tok import Token
 from tok import TokenType as tt
@@ -33,10 +31,12 @@ KEYWORDS = {
 class Scanner:
     def __init__(self, code: str) -> None:
         self.code = code
-        self.tokens = []
+        self.tokens : list[Token] = []
         self.start = 0
         self.current = 0
         self.line = 1
+        self.leading_spaces = 0
+        self.indents = [0]
 
     def scan_token(self):
 
@@ -65,10 +65,14 @@ class Scanner:
             case '#':
                 while self.peek():
                     self.advance()
-            case ' ' | '\r' | '\t': ...
+            case ' ':
+                if self.previous.type == tt.NEWLINE:
+                    self.leading_spaces += 1
+            case '\r' | '\t' : ...
             case '\n':
                 self.add_token(tt.NEWLINE)
                 self.line += 1
+                self.leading_spaces = 0
             case '"' | "'" as quote: self.add_token(tt.STRING, self.string(quote))
             case c if c.isdecimal(): self.add_token(tt.NUMBER, self.number())
             case c if c.isalpha(): self.add_token(self.keyword_identifier())
@@ -126,6 +130,11 @@ class Scanner:
     def peek(self) -> None | str:
         return None if self.end else self.code[self.current]
 
+    @property
+    def previous(self):
+        if self.tokens:
+            return self.tokens[-1]
+
     def peek_next(self) -> None | str:
         idx = self.current + 1
         return None if idx >= len(self.code) else self.code[idx]
@@ -137,12 +146,41 @@ class Scanner:
 
     def add_token(self, type, literal=None):
         text = self.code[self.start: self.current]
+
+        # Figure out the indentation
+        if self.previous and self.previous.type == tt.NEWLINE:
+            self.resolve_indentation_level()
+
         self.tokens.append(Token(type, self.line, text, literal))
+
+
+    def resolve_indentation_level(self):
+
+        if self.indents[-1] == self.leading_spaces:
+            return
+        elif self.indents[-1] < self.leading_spaces:
+            self.tokens.append(Token(tt.INDENT, self.line, " "*self.leading_spaces))
+            self.indents.append(self.leading_spaces)
+            return
+
+        while self.indents[-1] > self.leading_spaces:
+            self.indents.pop()
+            self.tokens.append(Token(tt.DEDENT, self.line))
+
+        if self.indents[-1] != self.leading_spaces:
+            raise IndentationError
+
+
+        self.leading_spaces = 0
 
     def scan_tokens(self):
         while not self.end:
             self.start = self.current
             self.scan_token()
+
+        for indent in self.indents:
+            if indent > 0:
+                self.tokens.append(Token(tt.DEDENT, self.line))
 
         self.tokens.append(Token(tt.EOF, self.line))
         return self.tokens
