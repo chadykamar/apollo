@@ -59,6 +59,7 @@ class TokenType(Enum):
     RETURN = auto()
     SELF = auto()
     IMPORT = auto()
+    IN = auto()
 
     # Bool
     AND = auto()

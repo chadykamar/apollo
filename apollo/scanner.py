@@ -16,6 +16,7 @@ KEYWORDS = {
     "True": tt.TRUE,
     "False": tt.FALSE,
     "None": tt.NONE,
+    "in": tt.IN,
 
     "do": tt.DO,
     "for": tt.FOR,
