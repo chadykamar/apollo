@@ -1,4 +1,4 @@
-
+from __future__ import annotations
 
 import abc
 from dataclasses import dataclass
@@ -20,3 +20,21 @@ class ExpressionStatement(Statement):
 class AssignmentStatement(Statement):
     name: Token
     expr: Expression
+
+
+@dataclass
+class Block(Statement):
+    statements: list[Statement]
+
+
+@dataclass
+class IfStmt(Statement):
+    condition: Expression
+    block: Block
+    elif_stmt: None | ElifStmt = None
+    else_block: None | ElseBlock = None
+
+
+ElifStmt = IfStmt
+
+ElseBlock = Block
