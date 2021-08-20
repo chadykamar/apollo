@@ -4,6 +4,8 @@ from enum import Enum, auto
 class TokenType(Enum):
 
     NEWLINE = auto()
+    INDENT = auto()
+    DEDENT = auto()
 
     # Grouping
     LPAREN = auto()
