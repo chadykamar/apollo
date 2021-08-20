@@ -30,7 +30,6 @@ class Interpreter:
             case ExpressionStatement() as stmt: return self.evaluate(stmt.expr)
             case AssignmentStatement(name, expr):
                 self.env[name.lexeme] = self.evaluate(expr)
-                return self.env[name.lexeme]
 
     def evaluate(self, expr: Expression):
 
