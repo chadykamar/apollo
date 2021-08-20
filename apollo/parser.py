@@ -1,14 +1,14 @@
-
 from exc import ParseException
-from expression import Binary, Expression, Grouping, Literal, Ternary, Unary, Variable
-from statement import AssignmentStatement, ExpressionStatement, Statement
+from expression import (Binary, Expression, Grouping, Literal, Ternary, Unary,
+                        Variable)
+from statement import (AssignmentStatement, Block, ExpressionStatement, IfStmt,
+                       Statement)
 from tok import TokenType as tt
 from tok.tok import Token
 from tok.type import TokenType
 
 
 class Parser:
-
     def __init__(self, tokens: list[Token]) -> None:
         self.tokens = tokens
         self.current = 0
@@ -30,6 +30,8 @@ class Parser:
 
         if self.check(tt.IDENTIFIER) and self.check(tt.ASSIGN, lookahead=True):
             return self.assignment()
+        elif self.match(tt.IF):
+            return self.if_stmt()
 
         return self.expr_stmt()
 
@@ -42,6 +44,37 @@ class Parser:
         if not self.end:
             self.consume(tt.NEWLINE, "Expect newline after assignment")
         return AssignmentStatement(name, expr)
+
+    def if_stmt(self):
+        condition = self.expression()
+
+        self.consume(tt.COLON, "expected ':' after if condition")
+
+        block = self.block()
+
+        if self.match(tt.ELIF):
+            elif_stmt = self.if_stmt()
+            return IfStmt(condition, block, elif_stmt=elif_stmt)
+        elif self.match(tt.ELSE):
+
+            else_block = self.else_block()
+            return IfStmt(condition, block, else_block=else_block)
+        else:
+            return IfStmt(condition, block)
+
+    def else_block(self):
+        self.consume(tt.COLON, "expected ':' after if condition")
+        return self.block()
+
+    def block(self):
+        self.consume(tt.NEWLINE, "Expect newline to start block")
+        self.consume(tt.INDENT, "Expected block to be indented")
+
+        statements = []
+        while not self.match(tt.DEDENT):
+            statements.append(self.statement())
+
+        return Block(statements)
 
     def expr_stmt(self):
         expr = self.expression()
@@ -81,7 +114,8 @@ class Parser:
         return self.left_assoc(self.comparison, tt.NEQUAL, tt.EQUAL)
 
     def comparison(self):
-        return self.left_assoc(self.term, tt.GREATER, tt.GEQUAL, tt.LESSER, tt.LEQUAL)
+        return self.left_assoc(self.term, tt.GREATER, tt.GEQUAL, tt.LESSER,
+                               tt.LEQUAL)
 
     def term(self) -> Expression:
         return self.left_assoc(self.factor, tt.MINUS, tt.PLUS)
@@ -134,7 +168,8 @@ class Parser:
             if self.previous.type == tt.NEWLINE:
                 return
 
-            if self.match(tt.CLASS, tt.DEF, tt.FOR, tt.IF, tt.WHILE, tt.RETURN):
+            if self.match(tt.CLASS, tt.DEF, tt.FOR, tt.IF, tt.WHILE,
+                          tt.RETURN):
                 return
 
             self.advance()
@@ -158,7 +193,7 @@ class Parser:
             self.current += 1
         return self.previous
 
-    @ property
+    @property
     def end(self):
         return self.peek().type == tt.EOF
 
@@ -168,6 +203,6 @@ class Parser:
     def lookahead(self):
         return self.tokens[self.current + 1]
 
-    @ property
+    @property
     def previous(self):
         return self.tokens[self.current - 1]
