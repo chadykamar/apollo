@@ -2,7 +2,7 @@ from parser import Parser
 
 import pytest
 from exc import ParseException
-from expression import Binary, Grouping, Literal, Ternary, Unary, Variable
+from expression import Binary, Grouping, Literal, Logical, Ternary, Unary, Variable
 from statement import (AssignmentStatement, Block, ElifStmt, ElseBlock,
                        ExpressionStatement, IfStmt)
 from tok import Token
@@ -461,6 +461,65 @@ def test_nested_if_elif():
                ]),
                elif_stmt=ElifStmt(Literal(True),
                                   Block([ExpressionStatement(Literal(3))])))
+    ]
+
+    assert parser.parse() == expected
+
+
+def test_and():
+    tokens = [
+        Token(tt.TRUE, 1, "True"),
+        Token(tt.AND, 1, "and"),
+        Token(tt.FALSE, 1, 'False'),
+        Token(tt.EOF, 1)
+    ]
+
+    parser = Parser(tokens)
+
+    expected = [
+        ExpressionStatement(
+            Logical(Literal(True), Token(tt.AND, 1, "and"), Literal(False)))
+    ]
+
+    assert parser.parse() == expected
+
+
+def test_or():
+    tokens = [
+        Token(tt.TRUE, 1, "True"),
+        Token(tt.OR, 1, "or"),
+        Token(tt.FALSE, 1, 'False'),
+        Token(tt.EOF, 1)
+    ]
+
+    parser = Parser(tokens)
+
+    expected = [
+        ExpressionStatement(
+            Logical(Literal(True), Token(tt.OR, 1, "or"), Literal(False)))
+    ]
+
+    assert parser.parse() == expected
+
+
+def test_multiple_ands():
+    tokens = [
+        Token(tt.TRUE, 1, "True"),
+        Token(tt.AND, 1, "and"),
+        Token(tt.FALSE, 1, 'False'),
+        Token(tt.AND, 1, "and"),
+        Token(tt.FALSE, 1, 'False'),
+        Token(tt.EOF, 1)
+    ]
+
+    parser = Parser(tokens)
+
+    expected = [
+        ExpressionStatement(
+            Logical(
+                Logical(Literal(True), Token(tt.AND, 1,
+                                             "and"), Literal(False)),
+                Token(tt.AND, 1, "and"), Literal(False)))
     ]
 
     assert parser.parse() == expected
