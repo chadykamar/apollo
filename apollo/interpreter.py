@@ -3,8 +3,9 @@ from token import NUMBER
 
 from environment import Environment
 from exc import NameNotFoundException, RuntimeException
-from expression import Binary, Expression, Grouping, Literal, Ternary, Unary, Variable
-from statement import AssignmentStatement, ExpressionStatement, Statement
+from expression import (Binary, Expression, Grouping, Literal, Ternary, Unary,
+                        Variable)
+from statement import AssignmentStatement, Block, ElifStmt, ElseBlock, ExpressionStatement, IfStmt, Statement
 from tok.type import TokenType as tt
 
 
@@ -30,6 +31,17 @@ class Interpreter:
             case ExpressionStatement() as stmt: return self.evaluate(stmt.expr)
             case AssignmentStatement(name, expr):
                 self.env[name.lexeme] = self.evaluate(expr)
+            case IfStmt(condition, block, elif_stmt, else_block):
+                if self.evaluate(condition):
+                    self.interpret(block.statements)
+                elif elif_stmt:
+                    self.execute(elif_stmt)
+                elif else_block:
+                    self.execute(else_block)
+            case Block(statements):
+                for stmt in statements:
+                    self.execute(stmt)
+
 
     def evaluate(self, expr: Expression):
 
