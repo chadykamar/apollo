@@ -1,6 +1,6 @@
 from exc import ParseException
-from expression import (Binary, Expression, Grouping, Literal, Ternary, Unary,
-                        Variable)
+from expression import (Binary, Expression, Grouping, Literal, Logical,
+                        Ternary, Unary, Variable)
 from statement import (AssignmentStatement, Block, ExpressionStatement, IfStmt,
                        Statement)
 from tok import TokenType as tt
@@ -77,10 +77,30 @@ class Parser:
         return Block(statements)
 
     def expr_stmt(self):
-        expr = self.expression()
+        expr = self.disjunction()
         if not self.end:
             self.consume(tt.NEWLINE, "Syntax error")
         return ExpressionStatement(expr)
+
+    def disjunction(self):
+        expr = self.conjunction()
+
+        while self.match(tt.OR):
+            operator = self.previous
+            right = self.conjunction()
+            expr = Logical(expr, operator, right)
+
+        return expr
+
+    def conjunction(self):
+        expr = self.expression()
+
+        while self.match(tt.AND):
+            operator = self.previous
+            right = self.expression()
+            expr = Logical(expr, operator, right)
+
+        return expr
 
     def expression(self) -> Expression:
         return self.left_assoc(self.ternary, tt.COMMA)
