@@ -3,7 +3,7 @@ from token import NUMBER
 
 from environment import Environment
 from exc import NameNotFoundException, RuntimeException
-from expression import (Binary, Expression, Grouping, Literal, Ternary, Unary,
+from expression import (Binary, Expression, Grouping, Literal, Logical, Ternary, Unary,
                         Variable)
 from statement import AssignmentStatement, Block, ElifStmt, ElseBlock, ExpressionStatement, IfStmt, Statement
 from tok.type import TokenType as tt
@@ -46,6 +46,7 @@ class Interpreter:
     def evaluate(self, expr: Expression):
 
         match expr:
+            case Logical() as expr: return self.logical(expr)
             case Unary() as expr: return self.unary(expr)
             case Binary() as expr: return self.binary(expr)
             case Literal() as expr: return self.literal(expr)
@@ -89,3 +90,18 @@ class Interpreter:
                 case tt.NEQUAL: return left != right
         except (TypeError, ZeroDivisionError) as e:
             raise RuntimeException(str(e), expr.operator)
+
+    def logical(self, expr: Logical):
+        left = self.evaluate(expr.left)
+
+        if expr.operator.type == tt.AND:
+
+            if not left: return left
+
+        elif expr.operator.type == tt.OR:
+
+            if left: return left
+
+        return self.evaluate(expr.right)
+
+
