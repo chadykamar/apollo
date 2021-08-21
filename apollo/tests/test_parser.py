@@ -3,7 +3,7 @@ from parser import Parser
 import pytest
 from exc import ParseException
 from expression import Binary, Grouping, Literal, Ternary, Unary, Variable
-from statement import (AssignmentStatement, Block, ElifStmt,
+from statement import (AssignmentStatement, Block, ElifStmt, ElseBlock,
                        ExpressionStatement, IfStmt)
 from tok import Token
 from tok import TokenType as tt
@@ -349,6 +349,118 @@ def test_nested_if():
                         ExpressionStatement(Literal(1))
                     ]))
             ]))
+    ]
+
+    assert parser.parse() == expected
+
+
+def test_nested_if_else():
+    tokens = [
+        Token(tt.IF, 1, "if"),
+        Token(tt.TRUE, 1, "True"),
+        Token(tt.COLON, 1, ':'),
+        Token(tt.NEWLINE, 1, "\n"),
+        Token(tt.INDENT, 2, "    "),
+        Token(tt.IF, 2, "if"),
+        Token(tt.TRUE, 2, "True"),
+        Token(tt.COLON, 2, ':'),
+        Token(tt.NEWLINE, 2, "\n"),
+        Token(tt.INDENT, 3, "        "),
+        Token(tt.NUMBER, 3, "1", 1),
+        Token(tt.NEWLINE, 3, "\n"),
+        Token(tt.NUMBER, 4, "1", 1),
+        Token(tt.NEWLINE, 4, "\n"),
+        Token(tt.DEDENT, 4),
+        Token(tt.ELSE, 4, "else"),
+        Token(tt.COLON, 4, ":"),
+        Token(tt.NEWLINE, 4, "\n"),
+        Token(tt.INDENT, 5, "        "),
+        Token(tt.NUMBER, 5, "2", 2),
+        Token(tt.NEWLINE, 5, "\n"),
+        Token(tt.DEDENT, 6),
+        Token(tt.DEDENT, 6),
+        Token(tt.ELSE, 6, "else"),
+        Token(tt.COLON, 6, ':'),
+        Token(tt.NEWLINE, 6, "\n"),
+        Token(tt.INDENT, 7, "    "),
+        Token(tt.NUMBER, 7, "3", 3),
+        Token(tt.NEWLINE, 7, "\n"),
+        Token(tt.DEDENT, 7),
+        Token(tt.EOF, 7)
+    ]
+
+    parser = Parser(tokens)
+
+    expected = [
+        IfStmt(Literal(True),
+               Block([
+                   IfStmt(Literal(True),
+                          Block([
+                              ExpressionStatement(Literal(1)),
+                              ExpressionStatement(Literal(1))
+                          ]),
+                          else_block=ElseBlock(
+                              [ExpressionStatement(Literal(2))]))
+               ]),
+               else_block=ElseBlock([ExpressionStatement(Literal(3))]))
+    ]
+
+    assert parser.parse() == expected
+
+
+def test_nested_if_elif():
+    tokens = [
+        Token(tt.IF, 1, "if"),
+        Token(tt.TRUE, 1, "True"),
+        Token(tt.COLON, 1, ':'),
+        Token(tt.NEWLINE, 1, "\n"),
+        Token(tt.INDENT, 2, "    "),
+        Token(tt.IF, 2, "if"),
+        Token(tt.TRUE, 2, "True"),
+        Token(tt.COLON, 2, ':'),
+        Token(tt.NEWLINE, 2, "\n"),
+        Token(tt.INDENT, 3, "        "),
+        Token(tt.NUMBER, 3, "1", 1),
+        Token(tt.NEWLINE, 3, "\n"),
+        Token(tt.NUMBER, 4, "1", 1),
+        Token(tt.NEWLINE, 4, "\n"),
+        Token(tt.DEDENT, 4),
+        Token(tt.ELIF, 4, "else"),
+        Token(tt.FALSE, 4, "False"),
+        Token(tt.COLON, 4, ":"),
+        Token(tt.NEWLINE, 4, "\n"),
+        Token(tt.INDENT, 5, "        "),
+        Token(tt.NUMBER, 5, "2", 2),
+        Token(tt.NEWLINE, 5, "\n"),
+        Token(tt.DEDENT, 6),
+        Token(tt.DEDENT, 6),
+        Token(tt.ELIF, 6, "elif"),
+        Token(tt.TRUE, 6, "True"),
+        Token(tt.COLON, 6, ':'),
+        Token(tt.NEWLINE, 6, "\n"),
+        Token(tt.INDENT, 7, "    "),
+        Token(tt.NUMBER, 7, "3", 3),
+        Token(tt.NEWLINE, 7, "\n"),
+        Token(tt.DEDENT, 7),
+        Token(tt.EOF, 7)
+    ]
+
+    parser = Parser(tokens)
+
+    expected = [
+        IfStmt(Literal(True),
+               Block([
+                   IfStmt(
+                       Literal(True),
+                       Block([
+                           ExpressionStatement(Literal(1)),
+                           ExpressionStatement(Literal(1))
+                       ]),
+                       elif_stmt=ElifStmt(Literal(False),
+                                          [ExpressionStatement(Literal(2))]))
+               ]),
+               elif_stmt=ElifStmt(Literal(True),
+                                  [ExpressionStatement(Literal(3))]))
     ]
 
     assert parser.parse() == expected
