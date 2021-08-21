@@ -5,7 +5,7 @@ from environment import Environment
 from exc import NameNotFoundException, RuntimeException
 from expression import (Binary, Expression, Grouping, Literal, Logical, Ternary, Unary,
                         Variable)
-from statement import AssignmentStatement, Block, ElifStmt, ElseBlock, ExpressionStatement, IfStmt, Statement
+from statement import AssignmentStatement, Block, ElifStmt, ElseBlock, ExpressionStatement, IfStmt, Statement, WhileStmt
 from tok.type import TokenType as tt
 
 
@@ -41,6 +41,12 @@ class Interpreter:
             case Block(statements):
                 for stmt in statements:
                     self.execute(stmt)
+            case WhileStmt(condition, block, else_block):
+                while self.evaluate(condition):
+                    self.execute(block)
+                else:
+                    if else_block:
+                        self.execute(else_block)
 
 
     def evaluate(self, expr: Expression):
