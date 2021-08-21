@@ -523,3 +523,34 @@ def test_multiple_ands():
     ]
 
     assert parser.parse() == expected
+
+
+def test_while():
+    tokens = [
+        Token(tt.WHILE, 1, "while"),
+        Token(tt.TRUE, 1, "True"),
+        Token(tt.COLON, 1, ":"),
+        Token(tt.NEWLINE, 1, "\n"),
+        Token(tt.INDENT, 2, "    "),
+        Token(tt.FALSE, 2, 'False'),
+        Token(tt.NEWLINE, 2, "\n"),
+        Token(tt.DEDENT, 3),
+        Token(tt.ELSE, 3, "else"),
+        Token(tt.COLON, 3, ":"),
+        Token(tt.NEWLINE, 3, "\n"),
+        Token(tt.INDENT, 4, "    "),
+        Token(tt.TRUE, 4, "True"),
+        Token(tt.NEWLINE, 4, "\n"),
+        Token(tt.DEDENT, 5),
+        Token(tt.EOF, 5)
+    ]
+
+    parser = Parser(tokens)
+
+    expected = [
+        WhileStmt(Literal(True),
+                  Block([ExpressionStatement(Literal(False))]),
+                  else_block=Block([ExpressionStatement(Literal(True))]))
+    ]
+
+    assert parser.parse() == expected
