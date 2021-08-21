@@ -450,17 +450,17 @@ def test_nested_if_elif():
     expected = [
         IfStmt(Literal(True),
                Block([
-                   IfStmt(
-                       Literal(True),
-                       Block([
-                           ExpressionStatement(Literal(1)),
-                           ExpressionStatement(Literal(1))
-                       ]),
-                       elif_stmt=ElifStmt(Literal(False),
-                                          [ExpressionStatement(Literal(2))]))
+                   IfStmt(Literal(True),
+                          Block([
+                              ExpressionStatement(Literal(1)),
+                              ExpressionStatement(Literal(1))
+                          ]),
+                          elif_stmt=ElifStmt(
+                              Literal(False),
+                              Block([ExpressionStatement(Literal(2))])))
                ]),
                elif_stmt=ElifStmt(Literal(True),
-                                  [ExpressionStatement(Literal(3))]))
+                                  Block([ExpressionStatement(Literal(3))])))
     ]
 
     assert parser.parse() == expected
