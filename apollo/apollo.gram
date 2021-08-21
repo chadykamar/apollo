@@ -9,13 +9,17 @@ elif_stmt        : "elif" expression ":" block elif_stmt
 else_block       : "else" ":" block ;
 block            : NEWLINE INDENT statement* DEDENT ;
 assignment       : IDENTIFIER ( "=" expression) NEWLINE ;
-expr_stmt        : expr NEWLINE ;
+expr_stmt        : disjunction NEWLINE ;
+disjunction      : conjunction ('or' conjunction )*
+conjunction      : expression ('and' expression )*
 expression       : ternary ( "," ternary)* ;
+
 ternary          : equality "if" equality "else" equality ;
 equality         : comparison ( ( "!=" | "==" ) comparison )* ;
 comparison       : term ( ( ">" | ">=" | "<" | "<=" ) term )* ;
 term             : factor ( ( "-" | "+" ) factor )* ;
 factor           : unary ( ( "/" | "*" ) unary )* ;
+
 unary            : ( "not" | "-" ) unary
                  | primary ;
 
