@@ -49,3 +49,10 @@ class Literal(Expression):
 @dataclass
 class Variable(Expression):
     name: Token
+
+
+@dataclass
+class Logical(Expression):
+    left: Expression
+    operator: Token
+    right: Expression
