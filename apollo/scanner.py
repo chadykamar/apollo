@@ -66,7 +66,7 @@ class Scanner:
                 while self.peek():
                     self.advance()
             case ' ':
-                if self.previous.type == tt.NEWLINE:
+                if not self.tokens or self.previous.type == tt.NEWLINE:
                     self.leading_spaces += 1
             case '\r' | '\t' : ...
             case '\n':
