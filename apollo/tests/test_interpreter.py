@@ -1,8 +1,8 @@
 import pytest
 from exc import NameNotFoundException, RuntimeException
-from expression import Binary, Grouping, Literal, Ternary, Unary, Variable
+from expression import Binary, Grouping, Literal, Logical, Ternary, Unary, Variable
 from interpreter import Interpreter
-from statement import AssignmentStatement, Block, ElifStmt, ElseBlock, ExpressionStatement, IfStmt
+from statement import AssignmentStatement, Block, ElifStmt, ElseBlock, ExpressionStatement, IfStmt, WhileStmt
 from tok import Token
 from tok import TokenType as tt
 
@@ -343,3 +343,52 @@ def test_or(left, right, expected):
     interpreter = Interpreter()
 
     assert interpreter.evaluate(expression) == expected
+
+
+def test_while():
+
+    statements = [
+        AssignmentStatement(Token(tt.IDENTIFIER, 2, "a"), Literal(0)),
+        WhileStmt(
+            Binary(Variable(Token(tt.IDENTIFIER, 1, "a")),
+                   Token(tt.LESSER, 1, "<"), Literal(5)),
+            Block([
+                AssignmentStatement(
+                    Token(tt.IDENTIFIER, 2, "a"),
+                    Binary(Variable(Token(tt.IDENTIFIER, 2, "a")),
+                           Token(tt.PLUS, 2, "+"), Literal(1)))
+            ]))
+    ]
+
+    interpreter = Interpreter()
+
+    interpreter.interpret(statements)
+
+    assert interpreter.env["a"] == 5
+
+
+def test_while_else():
+
+    statements = [
+        AssignmentStatement(Token(tt.IDENTIFIER, 1, "a"), Literal(0)),
+        WhileStmt(Binary(Variable(Token(tt.IDENTIFIER, 2, "a")),
+                         Token(tt.LESSER, 2, "<"), Literal(5)),
+                  Block([
+                      AssignmentStatement(
+                          Token(tt.IDENTIFIER, 3, "a"),
+                          Binary(Variable(Token(tt.IDENTIFIER, 3, "a")),
+                                 Token(tt.PLUS, 3, "+"), Literal(1)))
+                  ]),
+                  else_block=ElseBlock([
+                      AssignmentStatement(
+                          Token(tt.IDENTIFIER, 5, "a"),
+                          Binary(Variable(Token(tt.IDENTIFIER, 5, "a")),
+                                 Token(tt.MINUS, 5, "-"), Literal(1)))
+                  ]))
+    ]
+
+    interpreter = Interpreter()
+
+    interpreter.interpret(statements)
+
+    assert interpreter.env["a"] == 4
