@@ -317,3 +317,29 @@ def test_nested_if_elif_else(i, j, expected):
     interpreter.interpret(statements)
 
     assert interpreter.env['a'] == expected
+
+
+@pytest.mark.parametrize("left, right, expected", [(True, False, False),
+                                                   (True, True, True),
+                                                   (False, False, False),
+                                                   (1, 0, 1), (0, 1, 0)])
+def test_and(left, right, expected):
+
+    expression = Logical(Literal(0), Token(tt.AND, 1, "and"), Literal(1))
+
+    interpreter = Interpreter()
+
+    assert interpreter.evaluate(expression) == 0
+
+
+@pytest.mark.parametrize("left, right, expected", [(True, False, True),
+                                                   (True, True, True),
+                                                   (False, False, False),
+                                                   (1, 0, 1), (0, 1, 1)])
+def test_or(left, right, expected):
+
+    expression = Logical(Literal(left), Token(tt.OR, 1, "or"), Literal(right))
+
+    interpreter = Interpreter()
+
+    assert interpreter.evaluate(expression) == expected
