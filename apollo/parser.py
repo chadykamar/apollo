@@ -2,7 +2,7 @@ from exc import ParseException
 from expression import (Binary, Expression, Grouping, Literal, Logical,
                         Ternary, Unary, Variable)
 from statement import (AssignmentStatement, Block, ExpressionStatement, IfStmt,
-                       Statement)
+                       Statement, WhileStmt)
 from tok import TokenType as tt
 from tok.tok import Token
 from tok.type import TokenType
@@ -32,8 +32,23 @@ class Parser:
             return self.assignment()
         elif self.match(tt.IF):
             return self.if_stmt()
+        elif self.match(tt.WHILE):
+            return self.while_stmt()
 
         return self.expr_stmt()
+
+    def while_stmt(self):
+        condition = self.disjunction()
+
+        self.consume(tt.COLON, "expect ':' after while condition")
+
+        block = self.block()
+
+        else_block = None
+        if self.match(tt.ELSE):
+            else_block = self.else_block()
+
+        return WhileStmt(condition, block, else_block)
 
     def assignment(self):
         name = self.consume(tt.IDENTIFIER, "expect var name")
@@ -46,7 +61,7 @@ class Parser:
         return AssignmentStatement(name, expr)
 
     def if_stmt(self):
-        condition = self.expression()
+        condition = self.disjunction()
 
         self.consume(tt.COLON, "expected ':' after if condition")
 
