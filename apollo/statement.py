@@ -38,3 +38,10 @@ class IfStmt(Statement):
 ElifStmt = IfStmt
 
 ElseBlock = Block
+
+
+@dataclass
+class WhileStmt(Statement):
+    condition: Expression
+    block: Block
+    else_block: None | ElseBlock = None
