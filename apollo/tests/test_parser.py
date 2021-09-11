@@ -4,7 +4,7 @@ import pytest
 from exc import ParseException
 from expression import Binary, Grouping, Literal, Logical, Ternary, Unary, Variable
 from statement import (AssignmentStatement, Block, ElifStmt, ElseBlock,
-                       ExpressionStatement, IfStmt)
+                       ExpressionStatement, IfStmt, WhileStmt)
 from tok import Token
 from tok import TokenType as tt
 
