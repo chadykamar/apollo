@@ -2,7 +2,17 @@ from parser import Parser
 
 import pytest
 from exc import ParseException
-from expression import Binary, Grouping, Literal, Logical, Ternary, Unary, Variable
+from expression import (
+    Binary,
+    Call,
+    CommaExpression,
+    Grouping,
+    Literal,
+    Logical,
+    Ternary,
+    Unary,
+    Variable,
+)
 from statement import (
     AssignmentStatement,
     Block,
@@ -573,6 +583,43 @@ def test_while():
             Literal(True),
             Block([ExpressionStatement(Literal(False))]),
             else_block=Block([ExpressionStatement(Literal(True))]),
+        )
+    ]
+
+    assert parser.parse() == expected
+
+
+def test_call():
+    tokens = [
+        Token(tt.IDENTIFIER, 1, "f"),
+        Token(tt.LPAREN, 1, "("),
+        Token(tt.IDENTIFIER, 1, "a"),
+        Token(tt.COMMA, 1, ","),
+        Token(tt.IDENTIFIER, 1, "b"),
+        Token(tt.COMMA, 1, ","),
+        Token(tt.IDENTIFIER, 1, "c"),
+        Token(tt.RPAREN, 1, ")"),
+        # Token(tt.NEWLINE, 1, "\n"),
+        Token(tt.EOF, 1),
+    ]
+
+    parser = Parser(tokens)
+
+    expected = [
+        ExpressionStatement(
+            Call(
+                Variable(Token(tt.IDENTIFIER, 1, "f")),
+                arguments=Binary(
+                    Binary(
+                        Variable(Token(tt.IDENTIFIER, 1, "a")),
+                        operator=Token(tt.COMMA, 1, ","),
+                        right=Variable(Token(tt.IDENTIFIER, 1, "b")),
+                    ),
+                    operator=Token(tt.COMMA, 1, ","),
+                    right=Variable(Token(tt.IDENTIFIER, 1, "c")),
+                ),
+                paren=Token(tt.RPAREN, 1, ")"),
+            )
         )
     ]
 
