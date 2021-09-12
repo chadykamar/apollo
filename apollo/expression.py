@@ -61,5 +61,5 @@ class Logical(Expression):
 @dataclass
 class Call(Expression):
     callee: Expression
-    arguments: list[Expression]
     paren: Token
+    arguments: Expression | None = None
