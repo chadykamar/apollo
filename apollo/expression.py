@@ -21,8 +21,8 @@ class Binary(Expression):
 
 @dataclass
 class Ternary(Expression):
-    """Ternary expressions, basically only 'a if x else b'
-    """
+    """Ternary expressions, basically only 'a if x else b'"""
+
     left: Expression
     if_: Token
     condition: Expression
@@ -56,3 +56,10 @@ class Logical(Expression):
     left: Expression
     operator: Token
     right: Expression
+
+
+@dataclass
+class Call(Expression):
+    callee: Expression
+    arguments: list[Expression]
+    paren: Token
