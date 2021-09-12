@@ -1,8 +1,23 @@
 from exc import ParseException
-from expression import (Binary, Expression, Grouping, Literal, Logical,
-                        Ternary, Unary, Variable)
-from statement import (AssignmentStatement, Block, ExpressionStatement, IfStmt,
-                       Statement, WhileStmt)
+from expression import (
+    Binary,
+    Call,
+    Expression,
+    Grouping,
+    Literal,
+    Logical,
+    Ternary,
+    Unary,
+    Variable,
+)
+from statement import (
+    AssignmentStatement,
+    Block,
+    ExpressionStatement,
+    IfStmt,
+    Statement,
+    WhileStmt,
+)
 from tok import TokenType as tt
 from tok.tok import Token
 from tok.type import TokenType
@@ -149,8 +164,7 @@ class Parser:
         return self.left_assoc(self.comparison, tt.NEQUAL, tt.EQUAL)
 
     def comparison(self):
-        return self.left_assoc(self.term, tt.GREATER, tt.GEQUAL, tt.LESSER,
-                               tt.LEQUAL)
+        return self.left_assoc(self.term, tt.GREATER, tt.GEQUAL, tt.LESSER, tt.LEQUAL)
 
     def term(self) -> Expression:
         return self.left_assoc(self.factor, tt.MINUS, tt.PLUS)
@@ -166,7 +180,19 @@ class Parser:
 
             return Unary(operator, right)
 
-        return self.primary()
+        return self.call()
+
+    def call(self) -> Expression:
+        expr = self.primary()
+
+        while self.match(tt.LPAREN):
+            args = self.expression() if not self.check(tt.RPAREN) else None
+
+            paren = self.consume(tt.RPAREN, "Expect ')' after arguments.")
+
+            return Call(expr, paren, args)
+
+        return expr
 
     def primary(self):
         if self.match(tt.FALSE):
@@ -203,8 +229,7 @@ class Parser:
             if self.previous.type == tt.NEWLINE:
                 return
 
-            if self.match(tt.CLASS, tt.DEF, tt.FOR, tt.IF, tt.WHILE,
-                          tt.RETURN):
+            if self.match(tt.CLASS, tt.DEF, tt.FOR, tt.IF, tt.WHILE, tt.RETURN):
                 return
 
             self.advance()
