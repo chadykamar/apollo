@@ -24,8 +24,7 @@ factor           : unary ( ( "/" | "*" ) unary )* ;
 
 unary            : ( "not" | "-" ) unary
                  | call ;
-call             : primary ( "(" arguments? ")" )* ;
-arguments        : expression ( "," expression )* ;
+call             : primary ( "(" expression? ")" )* ;
 
 primary          : NUMBER | STRING | "true" | "false" | "nil"
                  | "(" expression ")"
