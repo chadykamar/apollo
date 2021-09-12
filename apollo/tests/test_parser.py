@@ -5,7 +5,6 @@ from exc import ParseException
 from expression import (
     Binary,
     Call,
-    CommaExpression,
     Grouping,
     Literal,
     Logical,
@@ -589,17 +588,11 @@ def test_while():
     assert parser.parse() == expected
 
 
-def test_call():
+def test_call_no_args():
     tokens = [
         Token(tt.IDENTIFIER, 1, "f"),
         Token(tt.LPAREN, 1, "("),
-        Token(tt.IDENTIFIER, 1, "a"),
-        Token(tt.COMMA, 1, ","),
-        Token(tt.IDENTIFIER, 1, "b"),
-        Token(tt.COMMA, 1, ","),
-        Token(tt.IDENTIFIER, 1, "c"),
         Token(tt.RPAREN, 1, ")"),
-        # Token(tt.NEWLINE, 1, "\n"),
         Token(tt.EOF, 1),
     ]
 
@@ -609,6 +602,34 @@ def test_call():
         ExpressionStatement(
             Call(
                 Variable(Token(tt.IDENTIFIER, 1, "f")),
+                paren=Token(tt.RPAREN, 1, ")"),
+            )
+        )
+    ]
+
+    assert parser.parse() == expected
+
+
+def test_call_args():
+    tokens = [
+        Token(tt.IDENTIFIER, 1, "f"),
+        Token(tt.LPAREN, 1, "("),
+        Token(tt.IDENTIFIER, 1, "a"),
+        Token(tt.COMMA, 1, ","),
+        Token(tt.IDENTIFIER, 1, "b"),
+        Token(tt.COMMA, 1, ","),
+        Token(tt.IDENTIFIER, 1, "c"),
+        Token(tt.RPAREN, 1, ")"),
+        Token(tt.EOF, 1),
+    ]
+
+    parser = Parser(tokens)
+
+    expected = [
+        ExpressionStatement(
+            Call(
+                Variable(Token(tt.IDENTIFIER, 1, "f")),
+                paren=Token(tt.RPAREN, 1, ")"),
                 arguments=Binary(
                     Binary(
                         Variable(Token(tt.IDENTIFIER, 1, "a")),
@@ -618,7 +639,6 @@ def test_call():
                     operator=Token(tt.COMMA, 1, ","),
                     right=Variable(Token(tt.IDENTIFIER, 1, "c")),
                 ),
-                paren=Token(tt.RPAREN, 1, ")"),
             )
         )
     ]
