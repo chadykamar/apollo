@@ -1,6 +1,6 @@
 # apollo
 
-A programming language which implements a small subset Python, written in CPython.
+A tiny programming language which implements a small subset Python, written in CPython.
 
 
 ## REPL
