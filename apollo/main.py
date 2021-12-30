@@ -9,6 +9,7 @@ from exc import ParseException, RuntimeException
 from interpreter import Interpreter
 from scanner import Scanner
 from tok import TokenType as tt
+from tok.tok import Token
 
 
 class Apollo:
@@ -76,17 +77,17 @@ class Apollo:
             # TODO add print functions so returning results is unecessary
             results = self.interpreter.interpret(statements)
             for result in results:
-                print(result)
+                if result:
+                    print(result)
 
         except ParseException as e:
             self.report(e.token, str(e))
 
-    def report(self, token, msg):
+    def report(self, token: Token, msg):
         match token.type:
             case tt.EOF: print(f"[line {token.line}] Error at end: {msg}")
-            case _: print(f"[line {token.line}] Error at {token.lexeme}: {msg}")
+            case _: print(f"[line {token.line}] Error at {token.type} {token.lexeme}: {msg}")
         self.error = True
-
 
 if __name__ == "__main__":
     Apollo().entrypoint()
