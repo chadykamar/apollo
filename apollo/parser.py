@@ -255,7 +255,9 @@ class Parser:
 
     @property
     def end(self):
-        return self.peek().type == tt.EOF
+        return self.peek().type == tt.EOF or (
+            self.peek().type == tt.DEDENT and self.lookahead().type == tt.EOF
+        )
 
     def peek(self):
         return self.tokens[self.current]
