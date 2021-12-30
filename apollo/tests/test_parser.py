@@ -644,3 +644,67 @@ def test_call_args():
     ]
 
     assert parser.parse() == expected
+
+
+def test_end_of_file_block_without_newline():
+    tokens = [
+        Token(type=tt.IDENTIFIER, line=1, lexeme="i", literal=None),
+        Token(type=tt.ASSIGN, line=1, lexeme="=", literal=None),
+        Token(type=tt.NUMBER, line=1, lexeme="0", literal=0),
+        Token(type=tt.NEWLINE, line=1, lexeme="\n", literal=None),
+        Token(type=tt.WHILE, line=2, lexeme="while", literal=None),
+        Token(type=tt.IDENTIFIER, line=2, lexeme="i", literal=None),
+        Token(type=tt.LESSER, line=2, lexeme="<", literal=None),
+        Token(type=tt.NUMBER, line=2, lexeme="5", literal=5),
+        Token(type=tt.COLON, line=2, lexeme=":", literal=None),
+        Token(type=tt.NEWLINE, line=2, lexeme="\n", literal=None),
+        Token(type=tt.INDENT, line=3, lexeme="    ", literal=None),
+        Token(type=tt.IDENTIFIER, line=3, lexeme="i", literal=None),
+        Token(type=tt.ASSIGN, line=3, lexeme="=", literal=None),
+        Token(type=tt.IDENTIFIER, line=3, lexeme="i", literal=None),
+        Token(type=tt.PLUS, line=3, lexeme="+", literal=None),
+        Token(type=tt.NUMBER, line=3, lexeme="1", literal=1),
+        Token(type=tt.DEDENT, line=3, lexeme=None, literal=None),
+        Token(type=tt.EOF, line=3, lexeme=None, literal=None),
+    ]
+
+    parser = Parser(tokens)
+
+    expected = [
+        AssignmentStatement(
+            name=Token(type=tt.IDENTIFIER, line=1, lexeme="i", literal=None),
+            expr=Literal(value=0),
+        ),
+        WhileStmt(
+            condition=Binary(
+                left=Variable(
+                    name=Token(type=tt.IDENTIFIER, line=2, lexeme="i", literal=None)
+                ),
+                operator=Token(type=tt.LESSER, line=2, lexeme="<", literal=None),
+                right=Literal(value=5),
+            ),
+            block=Block(
+                statements=[
+                    AssignmentStatement(
+                        name=Token(
+                            type=tt.IDENTIFIER, line=3, lexeme="i", literal=None
+                        ),
+                        expr=Binary(
+                            left=Variable(
+                                name=Token(
+                                    type=tt.IDENTIFIER, line=3, lexeme="i", literal=None
+                                )
+                            ),
+                            operator=Token(
+                                type=tt.PLUS, line=3, lexeme="+", literal=None
+                            ),
+                            right=Literal(value=1),
+                        ),
+                    )
+                ]
+            ),
+            else_block=None,
+        ),
+    ]
+
+    assert parser.parse() == expected
