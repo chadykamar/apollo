@@ -1,8 +1,7 @@
 from __future__ import annotations
 
 import abc
-from dataclasses import dataclass
-from token import LEFTSHIFT, RIGHTSHIFT
+from dataclasses import dataclass, field
 from typing import Any
 
 from tok import Token
@@ -62,4 +61,9 @@ class Logical(Expression):
 class Call(Expression):
     callee: Expression
     paren: Token
-    arguments: Expression | None = None
+    arguments: CommaExpression | None = None
+
+
+@dataclass
+class CommaExpression:
+    expressions: list[Expression]

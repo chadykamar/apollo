@@ -5,6 +5,7 @@ from exc import ParseException
 from expression import (
     Binary,
     Call,
+    CommaExpression,
     Grouping,
     Literal,
     Logical,
@@ -64,13 +65,7 @@ def test_comma_expression():
         Token(tt.EOF, 1),
     ]
     expected = [
-        ExpressionStatement(
-            Binary(
-                Binary(Literal(1), Token(tt.COMMA, 1, ","), Literal(True)),
-                Token(tt.COMMA, 1, ","),
-                Literal(3),
-            )
-        )
+        ExpressionStatement(CommaExpression([Literal(1), Literal(True), Literal(3)]))
     ]
     parser = Parser(tokens)
     assert parser.parse() == expected

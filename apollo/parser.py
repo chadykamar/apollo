@@ -2,6 +2,7 @@ from exc import ParseException
 from expression import (
     Binary,
     Call,
+    CommaExpression,
     Expression,
     Grouping,
     Literal,
@@ -133,7 +134,17 @@ class Parser:
         return expr
 
     def expression(self) -> Expression:
-        return self.left_assoc(self.ternary, tt.COMMA)
+        expr = self.ternary()
+
+        exprs = []
+        while self.match(tt.COMMA):
+            exprs.append(self.ternary())
+
+        if exprs:
+            exprs.insert(0, expr)
+            return CommaExpression(exprs)
+        else:
+            return expr
 
     def ternary(self) -> Expression:
         expr = self.equality()
