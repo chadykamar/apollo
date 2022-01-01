@@ -620,25 +620,21 @@ def test_call_args():
 
     parser = Parser(tokens)
 
-    expected = [
-        ExpressionStatement(
-            Call(
-                Variable(Token(tt.IDENTIFIER, 1, "f")),
-                paren=Token(tt.RPAREN, 1, ")"),
-                arguments=Binary(
-                    Binary(
-                        Variable(Token(tt.IDENTIFIER, 1, "a")),
-                        operator=Token(tt.COMMA, 1, ","),
-                        right=Variable(Token(tt.IDENTIFIER, 1, "b")),
-                    ),
-                    operator=Token(tt.COMMA, 1, ","),
-                    right=Variable(Token(tt.IDENTIFIER, 1, "c")),
-                ),
-            )
+    expected = ExpressionStatement(
+        Call(
+            Variable(Token(tt.IDENTIFIER, 1, "f")),
+            paren=Token(tt.RPAREN, 1, ")"),
+            arguments=CommaExpression(
+                [
+                    Variable(Token(tt.IDENTIFIER, 1, "a")),
+                    Variable(Token(tt.IDENTIFIER, 1, "b")),
+                    Variable(Token(tt.IDENTIFIER, 1, "c")),
+                ]
+            ),
         )
-    ]
+    )
 
-    assert parser.parse() == expected
+    assert parser.parse()[0] == expected
 
 
 def test_end_of_file_block_without_newline():
