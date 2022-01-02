@@ -1,8 +1,12 @@
 file             : statement* EOF ;
 statement        : expr_stmt
-                 | assignment ;
-                 | if_stmt ;
-                 | while_stmt ;
+                 | assignment
+                 | if_stmt
+                 | while_stmt
+                 | function_def ;
+function_def     : "def" function ;
+function         : IDENTIFIER "(" parameters* ")" block ;
+parameters       : IDENTIFIER ("," IDENTIFIER)* ;
 while_stmt       : "while" expression ":" block [else_block] ;
 if_stmt          : "if" expression ":" block elif_stmt
                  | "if" expression ":" block [else_block] ;
