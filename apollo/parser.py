@@ -15,6 +15,7 @@ from statement import (
     AssignmentStatement,
     Block,
     ExpressionStatement,
+    FunctionDefinition,
     IfStmt,
     Statement,
     WhileStmt,
@@ -50,8 +51,30 @@ class Parser:
             return self.if_stmt()
         elif self.match(tt.WHILE):
             return self.while_stmt()
+        elif self.match(tt.DEF):
+            return self.function()
 
         return self.expr_stmt()
+
+    def function(self):
+        name = self.consume(tt.IDENTIFIER, "Expect function name")
+        self.consume(tt.LPAREN, "Expect '(' after function name")
+
+        params = []
+        if not self.check(tt.RPAREN):
+            while True:
+                param = Variable(self.consume(tt.IDENTIFIER, "Expect parameter name"))
+                params.append(param)
+
+                if not self.match(tt.COMMA):
+                    break
+
+        self.consume(tt.RPAREN, "Expect ')' after parameters")
+        self.consume(tt.COLON, "Expect ':' after function signature")
+
+        block = self.block()
+
+        return FunctionDefinition(name, params, block)
 
     def while_stmt(self):
         condition = self.disjunction()

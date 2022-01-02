@@ -45,3 +45,10 @@ class WhileStmt(Statement):
     condition: Expression
     block: Block
     else_block: None | ElseBlock = None
+
+
+@dataclass
+class FunctionDefinition(Statement):
+    name: Token
+    params: list[Token]
+    block: Block
