@@ -264,3 +264,38 @@ def test_while():
     scanner = Scanner(text)
 
     assert scanner.scan_tokens() == expected
+
+
+def test_function_def():
+
+    expected = [
+        Token(tt.DEF, 1, "def"),
+        Token(tt.IDENTIFIER, 1, "foo"),
+        Token(tt.LPAREN, 1, "("),
+        Token(tt.IDENTIFIER, 1, "a"),
+        Token(tt.COMMA, 1, ","),
+        Token(tt.IDENTIFIER, 1, "b"),
+        Token(tt.COMMA, 1, ","),
+        Token(tt.IDENTIFIER, 1, "c"),
+        Token(tt.RPAREN, 1, ")"),
+        Token(tt.COLON, 1, ":"),
+        Token(tt.NEWLINE, 1, "\n"),
+        Token(tt.INDENT, 2, "    "),
+        Token(tt.IDENTIFIER, 2, "print"),
+        Token(tt.LPAREN, 2, "("),
+        Token(tt.IDENTIFIER, 2, "a"),
+        Token(tt.COMMA, 2, ","),
+        Token(tt.IDENTIFIER, 2, "b"),
+        Token(tt.COMMA, 2, ","),
+        Token(tt.IDENTIFIER, 2, "c"),
+        Token(tt.RPAREN, 2, ")"),
+        Token(tt.DEDENT, 2),
+        Token(tt.EOF, 2),
+    ]
+
+    text = """def foo(a, b, c):
+    print(a, b, c)"""
+
+    scanner = Scanner(text)
+
+    assert scanner.scan_tokens() == expected
