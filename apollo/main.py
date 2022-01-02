@@ -74,11 +74,7 @@ class Apollo:
             tokens = scanner.scan_tokens()
             parser = Parser(tokens)
             statements = parser.parse()
-            # TODO add print functions so returning results is unecessary
             results = self.interpreter.interpret(statements)
-            for result in results:
-                if result:
-                    print(result)
 
         except ParseException as e:
             self.report(e.token, str(e))

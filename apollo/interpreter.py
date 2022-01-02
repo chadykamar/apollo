@@ -1,24 +1,31 @@
 
 from token import NUMBER
+from typing import Any, Callable
 
-from environment import Environment
+from environment import Environment, global_env
 from exc import NameNotFoundException, RuntimeException
-from expression import (Binary, Expression, Grouping, Literal, Logical, Ternary, Unary,
-                        Variable)
-from statement import AssignmentStatement, Block, ElifStmt, ElseBlock, ExpressionStatement, IfStmt, Statement, WhileStmt
+from expression import (Binary, Call, CommaExpression, Expression, Grouping,
+                        Literal, Logical, Ternary, Unary, Variable)
+from statement import (AssignmentStatement, Block, ElifStmt, ElseBlock,
+                       ExpressionStatement, IfStmt, Statement, WhileStmt)
 from tok.type import TokenType as tt
 
 
 class Interpreter:
 
     def __init__(self) -> None:
-        self.env = Environment()
+        self.globals = global_env()
+        self.env = Environment(enclosing=self.globals)
 
     def interpret(self, statements: list[Statement]):
         results = []
         for stmt in statements:
             try:
-                results.append(self.execute(stmt))
+                res = self.execute(stmt)
+                if isinstance(res, list):
+                    results.extend(res)
+                else:
+                    results.append(res)
             except NameNotFoundException as e:
                 results.append(None)
                 print(e)
@@ -33,7 +40,7 @@ class Interpreter:
                 self.env[name.lexeme] = self.evaluate(expr)
             case IfStmt(condition, block, elif_stmt, else_block):
                 if self.evaluate(condition):
-                    self.interpret(block.statements)
+                    self.execute(block)
                 elif elif_stmt:
                     self.execute(elif_stmt)
                 elif else_block:
@@ -49,7 +56,7 @@ class Interpreter:
                         self.execute(else_block)
 
 
-    def evaluate(self, expr: Expression):
+    def evaluate(self, expr: Expression) -> Any:
 
         match expr:
             case Logical() as expr: return self.logical(expr)
@@ -59,6 +66,9 @@ class Interpreter:
             case Grouping() as expr: return self.grouping(expr)
             case Ternary() as expr: return self.ternary(expr)
             case Variable() as expr: return self.env[expr.name.lexeme]
+            case CommaExpression() as expr: return [self.evaluate(e) for e in expr.expressions]
+            case Call(callee, _, args): return self.call(callee, args)
+
 
     def literal(self, expr: Literal):
         return expr.value
@@ -109,5 +119,16 @@ class Interpreter:
             if left: return left
 
         return self.evaluate(expr.right)
+
+    def call(self, callee: Callable, args: list[Expression] | Expression | None) -> Any:
+        callee = self.evaluate(callee)
+        if isinstance(args, list):
+            args = [self.evaluate(arg) for arg in args.expressions]
+            return callee(*args)
+        elif isinstance(args, Expression):
+            arg = self.evaluate(args)
+            return callee(arg)
+        else:
+            return callee()
 
 
