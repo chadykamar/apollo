@@ -1,7 +1,8 @@
 from __future__ import annotations
+
+import builtins
+
 from exc import NameNotFoundException
-from tok.tok import Token
-from collections import UserDict
 
 
 class Environment(dict):
@@ -26,3 +27,11 @@ class Environment(dict):
 
     def __missing__(self, key):
         raise NameNotFoundException(f"name '{key}' is not defined")
+
+
+def global_env():
+    env = Environment()
+    for name in dir(builtins):
+        if not name.startswith("__"):
+            env[name] = getattr(builtins, name)
+    return env
