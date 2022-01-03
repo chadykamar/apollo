@@ -19,6 +19,7 @@ from statement import (
     IfStmt,
     Statement,
     WhileStmt,
+    ReturnStmt,
 )
 from tok import TokenType as tt
 from tok.tok import Token
@@ -53,8 +54,18 @@ class Parser:
             return self.while_stmt()
         elif self.match(tt.DEF):
             return self.function()
+        elif self.match(tt.RETURN):
+            return self.return_stmt()
 
         return self.expr_stmt()
+
+    def return_stmt(self):
+        keyword = self.previous
+        value = self.expression()
+
+        self.consume(tt.NEWLINE, "Expect newline after return")
+
+        return ReturnStmt(keyword, value)
 
     def function(self):
         name = self.consume(tt.IDENTIFIER, "Expect function name")

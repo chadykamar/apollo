@@ -52,3 +52,9 @@ class FunctionDefinition(Statement):
     name: Token
     params: list[Token]
     block: Block
+
+
+@dataclass
+class ReturnStmt(Statement):
+    keyword: Token
+    value: Expression
