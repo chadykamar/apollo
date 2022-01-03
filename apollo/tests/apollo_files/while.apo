@@ -1,4 +1,12 @@
 i = 0
+i, i
 while i < 5:
     i = i + 1
-i
+print(i)
+if True:
+    i = 20
+print(i)
+def add_one(x):
+    print("add_one(i): ", x + 1)
+add_one(i)
+print(i)

@@ -1,0 +1,4 @@
+x = 5
+def foo(i):
+    print(i)
+foo(x)
