@@ -1,13 +1,13 @@
 
 from token import NUMBER
-from typing import Any, Callable
+from typing import Any
 
 from environment import Environment, global_env
 from exc import NameNotFoundException, RuntimeException
 from expression import (Binary, Call, CommaExpression, Expression, Grouping,
                         Literal, Logical, Ternary, Unary, Variable)
 from statement import (AssignmentStatement, Block, ElifStmt, ElseBlock,
-                       ExpressionStatement, IfStmt, Statement, WhileStmt)
+                       ExpressionStatement, FunctionDefinition, IfStmt, Statement, WhileStmt)
 from tok.type import TokenType as tt
 
 
@@ -54,6 +54,9 @@ class Interpreter:
                 else:
                     if else_block:
                         self.execute(else_block)
+            case FunctionDefinition(name, params, block) as func_def:
+                function = Function(func_def)
+                self.env[func_def.name.lexeme] = function
 
 
     def evaluate(self, expr: Expression) -> Any:
@@ -120,15 +123,30 @@ class Interpreter:
 
         return self.evaluate(expr.right)
 
-    def call(self, callee: Callable, args: list[Expression] | Expression | None) -> Any:
+    def call(self, callee, args: list[Expression] | Expression | None) -> Any:
+        from functools import partial
+
         callee = self.evaluate(callee)
-        if isinstance(args, list):
+
+        if isinstance(callee, Function):
+            callee = partial(callee, self)
+
+        if isinstance(args, Expression):
+            return callee(self.evaluate(args))
+        elif args == None:
+            return callee()
+        elif isinstance(args, CommaExpression):
             args = [self.evaluate(arg) for arg in args.expressions]
             return callee(*args)
-        elif isinstance(args, Expression):
-            arg = self.evaluate(args)
-            return callee(arg)
-        else:
-            return callee()
 
 
+class Function:
+    def __init__(self, definition: FunctionDefinition):
+        self.definition = definition
+
+    def __call__(self, interpreter: Interpreter, *args) -> Any:
+        env = Environment(enclosing=interpreter.globals)
+        for i, arg in enumerate(args):
+            env[self.definition.params[i].name.lexeme] = arg
+
+        interpreter.execute(self.definition.block)
