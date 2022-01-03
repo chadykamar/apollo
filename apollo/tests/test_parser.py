@@ -21,6 +21,7 @@ from statement import (
     ExpressionStatement,
     FunctionDefinition,
     IfStmt,
+    ReturnStmt,
     WhileStmt,
 )
 from tok import Token
@@ -735,6 +736,52 @@ def test_function_def():
                 AssignmentStatement(
                     name=Token(tt.IDENTIFIER, 2, "a"),
                     expr=Variable(Token(tt.IDENTIFIER, 2, "b")),
+                )
+            ]
+        ),
+    )
+
+    assert parser.parse()[0] == expected
+
+
+def test_function_return():
+    tokens = [
+        Token(tt.DEF, 1, "def"),
+        Token(tt.IDENTIFIER, 1, "f"),
+        Token(tt.LPAREN, 1, "("),
+        Token(tt.IDENTIFIER, 1, "a"),
+        Token(tt.COMMA, 1, ","),
+        Token(tt.IDENTIFIER, 1, "b"),
+        Token(tt.RPAREN, 1, ")"),
+        Token(tt.COLON, 1, ":"),
+        Token(tt.NEWLINE, 1, "\n"),
+        Token(tt.INDENT, 2, "    "),
+        Token(tt.RETURN, 2, "return"),
+        Token(tt.IDENTIFIER, 2, "a"),
+        Token(tt.PLUS, 2, "+"),
+        Token(tt.IDENTIFIER, 2, "b"),
+        Token(tt.NEWLINE, 2, "\n"),
+        Token(tt.DEDENT, 3),
+        Token(tt.EOF, 3),
+    ]
+
+    parser = Parser(tokens)
+
+    expected = FunctionDefinition(
+        name=Token(tt.IDENTIFIER, 1, "f"),
+        params=[
+            Variable(Token(tt.IDENTIFIER, 1, "a")),
+            Variable(Token(tt.IDENTIFIER, 1, "b")),
+        ],
+        block=Block(
+            statements=[
+                ReturnStmt(
+                    keyword=Token(tt.RETURN, 2, "return"),
+                    value=Binary(
+                        Variable(Token(tt.IDENTIFIER, 2, "a")),
+                        Token(tt.PLUS, 2, "+"),
+                        Variable(Token(tt.IDENTIFIER, 2, "b")),
+                    ),
                 )
             ]
         ),
