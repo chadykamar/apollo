@@ -57,4 +57,4 @@ class FunctionDefinition(Statement):
 @dataclass
 class ReturnStmt(Statement):
     keyword: Token
-    value: Expression
+    value: Expression | None = None

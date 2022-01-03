@@ -61,8 +61,11 @@ class Parser:
 
     def return_stmt(self):
         keyword = self.previous
-        value = self.expression()
 
+        if self.match(tt.NEWLINE):
+            return ReturnStmt(keyword, None)
+
+        value = self.expression()
         self.consume(tt.NEWLINE, "Expect newline after return")
 
         return ReturnStmt(keyword, value)

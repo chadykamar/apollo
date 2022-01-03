@@ -788,3 +788,35 @@ def test_function_return():
     )
 
     assert parser.parse()[0] == expected
+
+
+def test_function_return_no_value():
+    tokens = [
+        Token(tt.DEF, 1, "def"),
+        Token(tt.IDENTIFIER, 1, "f"),
+        Token(tt.LPAREN, 1, "("),
+        Token(tt.RPAREN, 1, ")"),
+        Token(tt.COLON, 1, ":"),
+        Token(tt.NEWLINE, 1, "\n"),
+        Token(tt.INDENT, 2, "    "),
+        Token(tt.RETURN, 2, "return"),
+        Token(tt.NEWLINE, 2, "\n"),
+        Token(tt.DEDENT, 3),
+        Token(tt.EOF, 3),
+    ]
+
+    parser = Parser(tokens)
+
+    expected = FunctionDefinition(
+        name=Token(tt.IDENTIFIER, 1, "f"),
+        params=[],
+        block=Block(
+            statements=[
+                ReturnStmt(
+                    keyword=Token(tt.RETURN, 2, "return"),
+                )
+            ]
+        ),
+    )
+
+    assert parser.parse()[0] == expected
