@@ -3,7 +3,8 @@ statement        : expr_stmt
                  | assignment
                  | if_stmt
                  | while_stmt
-                 | function_def ;
+                 | function_def
+                 | return_stmt ;
 function_def     : "def" function ;
 function         : IDENTIFIER "(" parameters* ")" block ;
 parameters       : IDENTIFIER ("," IDENTIFIER)* ;
