@@ -3,11 +3,11 @@ from token import NUMBER
 from typing import Any
 
 from environment import Environment, global_env
-from exc import NameNotFoundException, RuntimeException
+from exc import NameNotFoundException, ReturnException, RuntimeException
 from expression import (Binary, Call, CommaExpression, Expression, Grouping,
                         Literal, Logical, Ternary, Unary, Variable)
 from statement import (AssignmentStatement, Block, ElifStmt, ElseBlock,
-                       ExpressionStatement, FunctionDefinition, IfStmt, Statement, WhileStmt)
+                       ExpressionStatement, FunctionDefinition, IfStmt, ReturnStmt, Statement, WhileStmt)
 from tok.type import TokenType as tt
 
 
@@ -57,6 +57,12 @@ class Interpreter:
             case FunctionDefinition(name, params, block) as func_def:
                 function = Function(func_def)
                 self.env[func_def.name.lexeme] = function
+            case ReturnStmt(keyword, value):
+
+                if value:
+                    value = self.evaluate(value)
+
+                raise ReturnException("Return value", keyword, value)
 
 
     def evaluate(self, expr: Expression) -> Any:
@@ -70,7 +76,11 @@ class Interpreter:
             case Ternary() as expr: return self.ternary(expr)
             case Variable() as expr: return self.env[expr.name.lexeme]
             case CommaExpression() as expr: return [self.evaluate(e) for e in expr.expressions]
-            case Call(callee, _, args): return self.call(callee, args)
+            case Call(callee, _, args):
+                try:
+                    self.call(callee, args)
+                except ReturnException as e:
+                    return e.value
 
 
     def literal(self, expr: Literal):

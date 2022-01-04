@@ -25,3 +25,9 @@ class RuntimeException(ApolloException):
 
 class NameNotFoundException(Exception):
     pass
+
+
+class ReturnException(ApolloException):
+    def __init__(self, msg, token, value):
+        super().__init__(msg, token)
+        self.value = value
