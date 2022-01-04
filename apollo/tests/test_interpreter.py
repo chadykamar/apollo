@@ -1,6 +1,16 @@
 import pytest
 from exc import NameNotFoundException, RuntimeException
-from expression import Binary, Grouping, Literal, Logical, Ternary, Unary, Variable
+from expression import (
+    Binary,
+    Call,
+    CommaExpression,
+    Grouping,
+    Literal,
+    Logical,
+    Ternary,
+    Unary,
+    Variable,
+)
 from interpreter import Interpreter
 from statement import (
     AssignmentStatement,
@@ -8,7 +18,9 @@ from statement import (
     ElifStmt,
     ElseBlock,
     ExpressionStatement,
+    FunctionDefinition,
     IfStmt,
+    ReturnStmt,
     WhileStmt,
 )
 from tok import Token
@@ -557,3 +569,38 @@ def test_while_else():
     interpreter.interpret(statements)
 
     assert interpreter.env["a"] == 4
+
+
+def test_function_return():
+    statements = [
+        FunctionDefinition(
+            name=Token(tt.IDENTIFIER, 1, "add_one"),
+            params=[Variable(Token(tt.IDENTIFIER, 1, "a"))],
+            block=Block(
+                statements=[
+                    ReturnStmt(
+                        keyword=Token(tt.RETURN, 2, "return"),
+                        value=Binary(
+                            Literal(1),
+                            Token(tt.PLUS, 2, "+"),
+                            Variable(Token(tt.IDENTIFIER, 2, "a")),
+                        ),
+                    )
+                ]
+            ),
+        ),
+        AssignmentStatement(
+            name=Token(tt.IDENTIFIER, 3, "a"),
+            expr=Call(
+                Variable(Token(tt.IDENTIFIER, 3, "add_one")),
+                Token(tt.RPAREN, 3, ")"),
+                CommaExpression([Literal(1)]),
+            ),
+        ),
+    ]
+
+    interpreter = Interpreter()
+
+    interpreter.interpret(statements)
+
+    assert interpreter.env["a"] == 2
