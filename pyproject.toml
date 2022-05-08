@@ -9,7 +9,7 @@ license = "MIT"
 python = "^3.10"
 
 [tool.poetry.dev-dependencies]
-ipython = "^7.30.1"
+ipython = "^7.31.1"
 pylint = "^2.12.2"
 pytest = "^6.2.5"
 coverage = "^6.2"
